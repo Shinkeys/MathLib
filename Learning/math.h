@@ -35,10 +35,23 @@ namespace math
 	{
 
 	private:
+
+
+
 	public:
 		Mat4();
 		void subtract(const Mat4& matrix);
 		void add(const Mat4& matrix);
+		///////////// Scale, rotate, translate, transpose matrix ///////////////////////////////
+		Mat4& rotate(const Vector3& axis, float angle);
+		Mat4& scale(const Vector3& factors);
+		Mat4& transpose(const Mat4& matrix);
+
+		///////////////// matrix operations ///////////////////
+		Mat4& lookAt(const Vector3& eye, Vector3& direction, const Vector3& up);
+
+
+		Mat4& perspective(float fov, float aspect, float near, float far);
 
 		void print();
 
@@ -84,15 +97,10 @@ namespace math
 	Vector2 cross(const Vector2& first, const Vector2& second);
 
 	Vector2 normalize(const Vector2& vector);
-///////////////// matrix operations ///////////////////
-	Mat4 lookAt(const Vector3& eye, Vector3& direction, const Vector3& up);
-	Mat4 perspective(float fov, float aspect, float near, float far);
 
 
-///////////// Scale, rotate, translate, transpose matrix ///////////////////////////////
-	Mat4 scale(const Vector3& factors);
-	Mat4 rotate(const Vector3& axis, float angle);
-	Mat4 transpose(const Mat4& matrix);
+
+
 
 //////// ADDITIONAL FUNCTIONS ///////////////
 	float toRadians(float fov);

@@ -119,36 +119,35 @@ namespace math
 		return Vector2{ vector.x / magnitude, vector.y / magnitude };
 	}
 	/////////// matrix operations ///////////////
-	Mat4 lookAt(const Vector3& eye, Vector3& direction, const Vector3& up)
+	Mat4& Mat4::lookAt(const Vector3& eye, Vector3& direction, const Vector3& up)
 	{
 		Vector3 zAxis = normalize(direction.subtract(eye));
 		Vector3 xAxis = normalize(cross(up, zAxis));
 		Vector3 yAxis = cross(zAxis, xAxis);
 
-		Mat4 mat;
-		mat.mat4[0][0] = xAxis.x;
-		mat.mat4[1][0] = xAxis.y;
-		mat.mat4[2][0] = xAxis.z;
-		mat.mat4[3][0] = -(dot(xAxis, eye));
+		mat4[0][0] = xAxis.x;
+		mat4[1][0] = xAxis.y;
+		mat4[2][0] = xAxis.z;
+		mat4[3][0] = -(dot(xAxis, eye));
 
-		mat.mat4[0][1] = yAxis.x;
-		mat.mat4[1][1] = yAxis.y;
-		mat.mat4[2][1] = yAxis.z;
-		mat.mat4[3][1] = -(dot(yAxis, eye));
-
-
-		mat.mat4[0][2] = zAxis.x;
-		mat.mat4[1][2] = zAxis.y;
-		mat.mat4[2][2] = zAxis.z;
-		mat.mat4[3][2] = -(dot(zAxis, eye));
+		mat4[0][1] = yAxis.x;
+		mat4[1][1] = yAxis.y;
+		mat4[2][1] = yAxis.z;
+		mat4[3][1] = -(dot(yAxis, eye));
 
 
-		mat.mat4[0][3] = 0.0f;
-		mat.mat4[1][3] = 0.0f;
-		mat.mat4[2][3] = 0.0f;
-		mat.mat4[3][3] = 1.0f;
+		mat4[0][2] = zAxis.x;
+		mat4[1][2] = zAxis.y;
+		mat4[2][2] = zAxis.z;
+		mat4[3][2] = -(dot(zAxis, eye));
 
-		return mat;
+
+		mat4[0][3] = 0.0f;
+		mat4[1][3] = 0.0f;
+		mat4[2][3] = 0.0f;
+		mat4[3][3] = 1.0f;
+
+		return *this;
 	}
 
 	void Mat4::add(const Mat4& matrix)
@@ -198,83 +197,78 @@ namespace math
 		}
 	}
 	/////////// PMV MATRICES /////////////////////////////
-	Mat4 perspective(float fov, float aspect, float near, float far)
+	Mat4& Mat4::perspective(float fov, float aspect, float near, float far)
 	{
-		Mat4 matrix;
 
 		fov = toRadians(fov);
 
-		matrix.mat4[0][0] = 1 / (aspect * tan(fov / 2.0f));
+		mat4[0][0] = 1 / (aspect * tan(fov / 2.0f));
 
-		matrix.mat4[1][1] = 1.0f / tan(fov / 2.0f);
+		mat4[1][1] = 1.0f / tan(fov / 2.0f);
 
-		matrix.mat4[2][2] = (near + far) / (near - far);
+		mat4[2][2] = (near + far) / (near - far);
 
-		matrix.mat4[2][3] = (2 * near * far) / (near - far);
+		mat4[2][3] = (2 * near * far) / (near - far);
 
-		matrix.mat4[3][2] = -1.0f;
+		mat4[3][2] = -1.0f;
 
-		matrix.mat4[3][3] = 0.0f;
+		mat4[3][3] = 0.0f;
 
-		return matrix;
+		return *this;
 	}
 
-	Mat4 scale(const Vector3& factors)
+	Mat4& Mat4::scale(const Vector3& factors)
 	{
-		Mat4 matrix;
-
-		matrix.mat4[0][0] *= factors.x;
-		matrix.mat4[1][1] *= factors.y;
-		matrix.mat4[2][2] *= factors.z;
 
 
-		return matrix;
+		mat4[0][0] *= factors.x;
+		mat4[1][1] *= factors.y;
+		mat4[2][2] *= factors.z;
+
+
+		return *this;
 	}
-	Mat4 transpose(const Mat4& matrix)
+	Mat4& Mat4::transpose(const Mat4& matrix)
 	{
-		Mat4 transposed;
-
 		for (int i = 0; i < 4; ++i)
 		{
 			for (int j = 0; j < 4; ++j)
 			{
-				transposed.mat4[i][j] = matrix.mat4[j][i];
+				mat4[i][j] = matrix.mat4[j][i];
 			}
 		}
-		return transposed;
+		return *this;
 	}
 
-	Mat4 rotate(const Vector3& axis, float angle)
+	Mat4& Mat4::rotate(const Vector3& axis, float angle)
 	{
 		angle = toRadians(angle);
 		Vector3 u = normalize(axis);
 		float cosA = cos(angle);
 		float sinA = sin(angle);
 
+		mat4[0][0] = cosA + u.x * u.x * (1 - cosA); 
+		mat4[0][1] = (u.x * u.y * (1 - cosA)) - u.z * sinA;
+		mat4[0][2] = ((u.y * sinA) + (u.x * u.z)) * (1 - cosA);
+		mat4[0][3] = 0.0f;
 
-		Mat4 matrix;
-		matrix.mat4[0][0] = cosA + u.x * u.x * (1 - cosA); 
-		matrix.mat4[0][1] = (u.x * u.y * (1 - cosA)) - u.z * sinA;
-		matrix.mat4[0][2] = ((u.y * sinA) + (u.x * u.z)) * (1 - cosA);
-		matrix.mat4[0][3] = 0.0f;
+		mat4[1][0] = u.y * u.x * (1 - cosA) + u.z * sinA;
+		mat4[1][1] = cosA + u.y * u.y * (1 - cosA);
+		mat4[1][2] = u.y * u.z * (1 - cosA) - u.x * sinA;
+		mat4[1][3] = 0.0f;
 
-		matrix.mat4[1][0] = u.y * u.x * (1 - cosA) + u.z * sinA;
-		matrix.mat4[1][1] = cosA + u.y * u.y * (1 - cosA);
-		matrix.mat4[1][2] = u.y * u.z * (1 - cosA) - u.x * sinA;
-		matrix.mat4[1][3] = 0.0f;
+		mat4[2][0] = u.z * u.x * (1 - cosA) - u.y * sinA;
+		mat4[2][1] = u.z * u.y * (1 - cosA) + u.x * sinA;
+		mat4[2][2] = cosA + u.z * u.z * (1 - cosA);
+		mat4[2][3] = 0.0f;
 
-		matrix.mat4[2][0] = u.z * u.x * (1 - cosA) - u.y * sinA;
-		matrix.mat4[2][1] = u.z * u.y * (1 - cosA) + u.x * sinA;
-		matrix.mat4[2][2] = cosA + u.z * u.z * (1 - cosA);
-		matrix.mat4[2][3] = 0.0f;
+		mat4[3][0] = 0.0f;
+		mat4[3][1] = 0.0f;
+		mat4[3][2] = 0.0f;
+		mat4[3][3] = 1.0f;
+		roundMatrix(*this);
 
-		matrix.mat4[3][0] = 0.0f;
-		matrix.mat4[3][1] = 0.0f;
-		matrix.mat4[3][2] = 0.0f;
-		matrix.mat4[3][3] = 1.0f;
-		roundMatrix(matrix);
-
-		return matrix;
+		return *this;
 
 	}
 
